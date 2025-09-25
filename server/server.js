@@ -1,6 +1,8 @@
 import express from 'express'
-const app = express();
 import router from './routes/gifts.js';
+import dotenv from './config/dotenv.js';
+
+const app = express();
 
 app.use('/public', express.static('./public'));
 app.use('/scripts', express.static('./public/scripts'));
