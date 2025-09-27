@@ -1,6 +1,7 @@
 import express from 'express'
 import router from './routes/gifts.js';
 import dotenv from './config/dotenv.js';
+import { pool } from './config/database.js';
 
 const app = express();
 
@@ -18,3 +19,14 @@ app.listen(PORT, () => {
 });
 
 app.use('/gifts', router)
+
+const getGifts = async () => {
+    try {
+        const res = await pool.query('SELECT * FROM gifts ORDER BY id ASC');
+        res.status(200).json(res.rows);
+    } catch (err) {
+        console.error('Error executing query', err.message);
+    } 
+};
+
+export { getGifts };

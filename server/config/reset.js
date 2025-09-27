@@ -22,41 +22,46 @@ const createGiftsTable = async () => {
         const res = await pool.query(createTableQuery)
         console.log('🎉 gifts table created successfully')
 
-    } catch {
-        console.error('this broke bruh no db')
-    };
+    } catch (err) {
+        console.error('⚠️ error creating gifts table', err)
+    }
 
 
 };
 
 const seedGiftTable = async () => {
-    await createGiftsTable();
+    try {
+        await createGiftsTable();
 
-    giftData.forEach((gift) => {
-        const insertQuery = {
-            text: 'INSERT INTO gifts (name, pricePoint, audience, image, description, submittedBy, submittedOn) VALUES ($1, $2, $3, $4, $5, $6, $7)'
-        };
-        const values = [
-            gift.name,
-            gift.pricePoint,
-            gift.audience,
-            gift.image,
-            gift.description,
-            gift.submittedBy,
-            gift.submittedOn
-        ]
+        for (const gift of giftData) {
+            const insertQuery = {
+                text: 'INSERT INTO gifts (name, pricePoint, audience, image, description, submittedBy, submittedOn) VALUES ($1, $2, $3, $4, $5, $6, $7)'
+            };
+            const values = [
+                gift.name,
+                gift.pricePoint,
+                gift.audience,
+                gift.image,
+                gift.description,
+                gift.submittedBy,
+                gift.submittedOn
+            ];
 
-    pool.query(insertQuery, values, (err, res) => {
-    if (err) {
-        console.error('⚠️ error inserting gift', err)
-        return
+            try {
+                await pool.query(insertQuery, values);
+                console.log(`✅ ${gift.name} added successfully`);
+            } catch (err) {
+                console.error(`⚠️ Error inserting gift ${gift.name}:`, err.message);
+            }
+        }
+
+        console.log('🎉 Database seeding completed');
+        await pool.end(); // Close the pool connection
+    } catch (error) {
+        console.error('❌ Error seeding database:', error.message);
+        await pool.end();
+        process.exit(1);
     }
-
-        console.log(`✅ ${gift.name} added successfully`)
-    })
-
-    });
-
 };
 
 seedGiftTable();
