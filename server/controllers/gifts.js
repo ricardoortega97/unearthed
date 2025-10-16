@@ -10,4 +10,22 @@ const getGifts = async (req, res) => {
     }
 }
 
-export default { getGifts }
+const getGiftById = async (req, res) => {
+    try {
+        const selectQuery = `
+        SELECT name, pricePoint, audience, image, description, submittedBy, submittedOn
+        FROM gifts
+        WHERE id = $1
+        `;
+
+        const giftID = req.params.giftId;
+
+        const result = await pool.query(selectQuery, [giftID]);
+        res.status(200).json(result.rows[0]);
+    } catch (err) {
+        console.error('Error fetching gift by ID:');
+        res.status(409).json({ error: err.message });
+    }
+};
+
+export default { getGifts, getGiftById }
